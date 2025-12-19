@@ -9,7 +9,7 @@ This module exposes a minimal API for:
 
 from typing import List, Dict, Any
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 import chromadb
 from chromadb.config import Settings
@@ -49,7 +49,7 @@ def add_documents_to_vector_store(
     embeddings = generate_embeddings(texts, embedding_model)
     ids = [str(uuid.uuid4()) for _ in range(len(documents))]
 
-    indexed_at = datetime.utcnow().isoformat()
+    indexed_at = datetime.now(timezone.utc).isoformat()
     metadatas: List[Dict[str, Any]] = []
     for doc in documents:
         md = doc.get("metadata", {}).copy()

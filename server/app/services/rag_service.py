@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Any
 from uuid import uuid4
 
@@ -52,7 +52,7 @@ class RAGService:
         )
 
         conversation_id = str(uuid4())
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
 
         return RAGResult(
             text=result["response"],

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.schemas.chat import ChatRequest, ChatResponse
+from app.schemas.users import UserOut
 from app.core.deps import get_rag_service
+from app.core.security import get_current_user
 from app.services.rag_service import RAGService
 
 router = APIRouter()
@@ -10,6 +12,7 @@ router = APIRouter()
 @router.post("/", response_model=ChatResponse)
 async def chat(
     payload: ChatRequest,
+    current_user: UserOut = Depends(get_current_user),
     rag_service: RAGService = Depends(get_rag_service),
 ) -> ChatResponse:
     """

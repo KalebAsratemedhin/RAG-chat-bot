@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import chat, documents, health
+from app.api.routes import auth, chat, documents, health
 from app.core.config import settings
+from app.core.database import init_db
+from app.api.routes import questions
 
 
 def create_app() -> FastAPI:
@@ -28,8 +30,15 @@ def create_app() -> FastAPI:
 
     # Routers
     app.include_router(health.router, prefix="/health", tags=["health"])
+    app.include_router(auth.router, prefix="/auth", tags=["auth"])
     app.include_router(chat.router, prefix="/chat", tags=["chat"])
     app.include_router(documents.router, prefix="/documents", tags=["documents"])
+    app.include_router(questions.router, prefix="/questions", tags=["questions"])
+
+    @app.on_event("startup")
+    async def on_startup() -> None:
+        # Create tables if they do not exist yet
+        init_db()
 
     @app.get("/")
     async def root() -> dict:

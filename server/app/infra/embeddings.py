@@ -20,9 +20,15 @@ def initialize_embedding_model(model_name: str = "all-MiniLM-L6-v2"):
     Returns:
         The embedding model
     """
-    return SentenceTransformer(model_name)
-
-
+    device = 'cpu'
+    try:
+        model = SentenceTransformer(model_name, device=device)
+        # Explicitly move to CPU if needed
+        model = model.to(device)
+        return model
+    except Exception as e:
+        # If there's still an issue, try clearing cache and retrying
+        raise RuntimeError(f"Failed to load embedding model: {e}. Try clearing cache: rm -rf ~/.cache/huggingface/")
 def generate_embeddings(texts: List[str], model) -> List[List[float]]:
     """
     Generate embeddings for a list of texts.

@@ -3,6 +3,7 @@ import { baseApi } from './api/baseApi';
 // Import API endpoints to ensure they're registered
 import './api/chatApi';
 import './api/documentApi';
+import './api/authApi';
 
 export const makeStore = () => {
   return configureStore({

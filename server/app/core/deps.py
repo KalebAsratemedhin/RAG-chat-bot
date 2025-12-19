@@ -1,12 +1,17 @@
 from functools import lru_cache
 
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 from app.core.config import settings
+from app.core.database import SessionLocal
 from app.infra.rag_engine import initialize_llm
 from app.infra.vector_store import initialize_vector_store
 from app.infra.embeddings import initialize_embedding_model
 from app.services.rag_service import RAGService
 from app.services.storage_service import StorageService
 from app.services.document_service import DocumentService
+from app.services.user_service import UserService
 
 
 @lru_cache
@@ -66,4 +71,22 @@ def get_document_service() -> DocumentService:
         collection=get_vector_store_collection(),
         embedding_model=get_embedding_model(),
     )
+
+
+def get_db():
+    """
+    Yield a SQLAlchemy session per request.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def get_user_service(db: Session = Depends(get_db)) -> UserService:
+    """
+    Provide a per-request UserService bound to a DB session.
+    """
+    return UserService(db)
 

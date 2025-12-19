@@ -10,7 +10,9 @@ from app.schemas.documents import (
     IndexedDocumentInfo,
     IndexedDocumentDeleteResponse,
 )
+from app.schemas.users import UserOut
 from app.core.deps import get_document_service
+from app.core.security import get_current_user
 from app.services.document_service import DocumentService
 
 router = APIRouter()
@@ -18,6 +20,7 @@ router = APIRouter()
 
 @router.get("/list", response_model=List[DocumentInfo])
 async def list_documents(
+    current_user: UserOut = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> List[DocumentInfo]:
     """List uploaded documents stored in S3."""
@@ -30,6 +33,7 @@ async def list_documents(
 @router.post("/upload", response_model=DocumentUploadResponse)
 async def upload_document(
     file: UploadFile = File(...),
+    current_user: UserOut = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> DocumentUploadResponse:
     """
@@ -49,6 +53,7 @@ async def upload_document(
 @router.post("/index", response_model=DocumentIndexResponse)
 async def index_document(
     payload: DocumentIndexRequest,
+    current_user: UserOut = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> DocumentIndexResponse:
     """
@@ -70,6 +75,7 @@ async def index_document(
 
 @router.get("/indexed", response_model=List[IndexedDocumentInfo])
 async def list_indexed_documents(
+    current_user: UserOut = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> List[IndexedDocumentInfo]:
     """
@@ -90,6 +96,7 @@ async def list_indexed_documents(
 )
 async def delete_indexed_document(
     source: str,
+    current_user: UserOut = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> IndexedDocumentDeleteResponse:
     """

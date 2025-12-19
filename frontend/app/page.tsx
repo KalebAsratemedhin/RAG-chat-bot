@@ -7,9 +7,10 @@ import { DocumentsPanel } from '@/components/documents/documents-panel';
 import { ChatHeader } from '@/components/chat/chat-header';
 import { ChatMessages } from '@/components/chat/chat-messages';
 import { ChatInput } from '@/components/chat/chat-input';
+import { AuthGuard } from '@/components/auth/auth-guard';
 import type { ChatMessage } from '@/components/chat/types';
 
-export default function ChatPage() {
+function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sendMessage, { isLoading }] = useSendMessageMutation();
@@ -94,5 +95,13 @@ export default function ChatPage() {
         textareaRef={textareaRef}
       />
     </div>
+  );
+}
+
+export default function ProtectedChatPage() {
+  return (
+    <AuthGuard>
+      <ChatPage />
+    </AuthGuard>
   );
 }

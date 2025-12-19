@@ -40,6 +40,16 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 200
     TOP_K_RETRIEVAL: int = 3
     LLM_TEMPERATURE: float = 0.7
+
+    # Database configuration (PostgreSQL)
+    DATABASE_URL: str = (
+        "postgresql+psycopg2://rag_user:rag_password@localhost:5432/rag_chat"
+    )
+
+    # Auth / JWT
+    JWT_SECRET_KEY: str = "CHANGE_ME_SUPER_SECRET_KEY"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     
     # API Configuration
     API_HOST: str = "0.0.0.0"
