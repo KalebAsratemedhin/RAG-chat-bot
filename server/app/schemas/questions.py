@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, constr
-from app.schemas.answers import AnswerOut
+from app.schemas.answers import AnswerOut, AnswerDetail
 
 # Question Schemas
 class QuestionBase(BaseModel):
@@ -30,7 +30,7 @@ class QuestionOut(QuestionBase):
 
 class QuestionDetail(QuestionOut):
     author_email: str
-    answers: List['AnswerOut'] = []
+    answers: List['AnswerDetail'] = []
     user_vote: Optional[str] = None
 
 QuestionDetail.model_rebuild()

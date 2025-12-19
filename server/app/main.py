@@ -5,6 +5,7 @@ from app.api.routes import auth, chat, documents, health
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.routes import questions
+from app.api.routes import debug
 
 
 def create_app() -> FastAPI:
@@ -34,6 +35,7 @@ def create_app() -> FastAPI:
     app.include_router(chat.router, prefix="/chat", tags=["chat"])
     app.include_router(documents.router, prefix="/documents", tags=["documents"])
     app.include_router(questions.router, prefix="/questions", tags=["questions"])
+    app.include_router(debug.router, prefix="/debug", tags=["debug"])
 
     @app.on_event("startup")
     async def on_startup() -> None:

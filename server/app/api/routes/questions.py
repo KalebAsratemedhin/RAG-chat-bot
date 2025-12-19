@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_db
+from app.core.deps import get_db, get_qa_indexing_service
 from app.core.security import get_current_user
 from app.schemas.users import UserOut
 from app.schemas.questions import (
@@ -15,6 +15,7 @@ from app.schemas.votes import VoteCreate
 from app.services.question_service import QuestionService
 from app.services.answer_service import AnswerService
 from app.services.vote_service import VoteService
+from app.services.qa_indexing_service import QAIndexingService
 
 router = APIRouter()
 
@@ -23,11 +24,19 @@ router = APIRouter()
 async def create_question(
     question_data: QuestionCreate,
     current_user: UserOut = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    qa_indexing: QAIndexingService = Depends(get_qa_indexing_service)
 ):
     """Create a new question."""
     service = QuestionService(db)
     question = service.create_question(question_data, current_user.id)
+
+     # Index the question immediately
+    try:
+        qa_indexing.index_question(question)
+    except Exception as e:
+        print(f"Error indexing question: {e}")
+    
     
     # Add computed fields
     question_dict = QuestionOut.model_validate(question).model_dump()
@@ -83,6 +92,7 @@ async def get_question(
     for answer in answers:
         a_dict = AnswerOut.model_validate(answer).model_dump()
         a_dict['vote_score'] = answer_service.get_answer_vote_score(answer.id)
+        print("answer.author", answer.author.email)
         a_dict['author_email'] = answer.author.email
         if current_user:
             a_dict['user_vote'] = answer_service.get_user_vote(answer.id, current_user.id)
@@ -105,11 +115,19 @@ async def update_question(
     question_id: int,
     question_data: QuestionUpdate,
     current_user: UserOut = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    qa_indexing: QAIndexingService = Depends(get_qa_indexing_service)
 ):
     """Update a question (only by author)."""
     service = QuestionService(db)
     question = service.update_question(question_id, question_data, current_user.id)
+
+    # Re-index question and all answers (in case question title/content changed)
+    try:
+        qa_indexing.reindex_question_with_answers(question_id)
+    except Exception as e:
+        print(f"Error re-indexing question: {e}")
+    
     
     q_dict = QuestionOut.model_validate(question).model_dump()
     q_dict['vote_score'] = service.get_question_vote_score(question.id)
@@ -121,11 +139,19 @@ async def update_question(
 async def delete_question(
     question_id: int,
     current_user: UserOut = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    qa_indexing: QAIndexingService = Depends(get_qa_indexing_service)
 ):
     """Delete a question (only by author)."""
     service = QuestionService(db)
     service.delete_question(question_id, current_user.id)
+
+    # Remove from index
+    try:
+        qa_indexing.remove_question(question_id)
+    except Exception as e:
+        print(f"Error removing question from index: {e}")
+    
     return None
 
 # Answer endpoints
@@ -134,12 +160,20 @@ async def create_answer(
     question_id: int,
     answer_data: AnswerCreateRequest,
     current_user: UserOut = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    qa_indexing: QAIndexingService = Depends(get_qa_indexing_service)
 ):
     """Create an answer to a question."""
     answer_data = AnswerCreate(content=answer_data.content, question_id=question_id)
     service = AnswerService(db)
     answer = service.create_answer(answer_data, current_user.id)
+
+    # Index the new answer immediately
+    try:
+        qa_indexing.index_answer(answer)
+    except Exception as e:
+        print(f"Error indexing answer: {e}")
+    
     
     a_dict = AnswerOut.model_validate(answer).model_dump()
     a_dict['vote_score'] = service.get_answer_vote_score(answer.id)
@@ -151,11 +185,19 @@ async def update_answer(
     answer_id: int,
     answer_data: AnswerUpdate,
     current_user: UserOut = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    qa_indexing: QAIndexingService = Depends(get_qa_indexing_service)
 ):
     """Update an answer (only by author)."""
     service = AnswerService(db)
     answer = service.update_answer(answer_id, answer_data, current_user.id)
+
+    # Re-index the updated answer
+    try:
+        qa_indexing.update_answer_metadata(answer)
+    except Exception as e:
+        print(f"Error re-indexing answer: {e}")
+    
     
     a_dict = AnswerOut.model_validate(answer).model_dump()
     a_dict['vote_score'] = service.get_answer_vote_score(answer.id)
@@ -166,22 +208,38 @@ async def update_answer(
 async def delete_answer(
     answer_id: int,
     current_user: UserOut = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    qa_indexing: QAIndexingService = Depends(get_qa_indexing_service)
 ):
     """Delete an answer (only by author)."""
     service = AnswerService(db)
     service.delete_answer(answer_id, current_user.id)
+
+    # Remove from index
+    try:
+        qa_indexing.remove_answer(answer_id)
+    except Exception as e:
+        print(f"Error removing answer from index: {e}")
+    
     return None
 
 @router.post("/answers/{answer_id}/accept", response_model=AnswerOut)
 async def accept_answer(
     answer_id: int,
     current_user: UserOut = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    qa_indexing: QAIndexingService = Depends(get_qa_indexing_service)
 ):
     """Accept an answer (only by question author)."""
     service = AnswerService(db)
     answer = service.accept_answer(answer_id, current_user.id)
+
+    # Re-index to update metadata (is_accepted flag)
+    try:
+        qa_indexing.update_answer_metadata(answer)
+    except Exception as e:
+        print(f"Error re-indexing accepted answer: {e}")
+    
     
     a_dict = AnswerOut.model_validate(answer).model_dump()
     a_dict['vote_score'] = service.get_answer_vote_score(answer.id)

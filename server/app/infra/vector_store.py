@@ -156,19 +156,34 @@ def list_indexed_documents(collection) -> List[Dict[str, Any]]:
 def delete_documents_by_source(collection, source: str) -> int:
     """
     Delete all document chunks in the vector store for a given source.
-
-    Returns the number of chunks that were deleted (best-effort based on ids).
     """
-    results = collection.get(where={"source": source}, include=["ids"])
-    raw_ids = results.get("ids") or []
-
-    # Handle both flat and nested id lists from Chroma
-    if raw_ids and isinstance(raw_ids[0], list):
-        deleted_count = sum(len(chunk_ids) for chunk_ids in raw_ids)
-    else:
-        deleted_count = len(raw_ids)
-
-    collection.delete(where={"source": source})
-    return deleted_count
+    try:
+        # Get all documents and filter by source
+        all_results = collection.get(include=["metadatas"])
+        all_ids = all_results.get("ids") or []
+        all_metadatas = all_results.get("metadatas") or []
+        
+        # Handle nested structure from Chroma
+        if all_ids and isinstance(all_ids[0], list):
+            all_ids = [id for sublist in all_ids for id in sublist]
+        if all_metadatas and isinstance(all_metadatas[0], list):
+            all_metadatas = [md for sublist in all_metadatas for md in sublist]
+        
+        # Find IDs where source matches
+        matching_ids = []
+        for idx, metadata in enumerate(all_metadatas):
+            if isinstance(metadata, dict) and metadata.get("source") == source:
+                if idx < len(all_ids):
+                    matching_ids.append(all_ids[idx])
+        
+        # Delete matching documents
+        if matching_ids:
+            collection.delete(ids=matching_ids)
+            return len(matching_ids)
+        
+        return 0
+    except Exception as e:
+        print(f"Error deleting documents by source '{source}': {e}")
+        raise
 
 

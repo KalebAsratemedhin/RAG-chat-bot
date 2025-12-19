@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     # RAG Configuration
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
-    TOP_K_RETRIEVAL: int = 3
+    TOP_K_RETRIEVAL: int = 7
     LLM_TEMPERATURE: float = 0.7
 
     # Database configuration (PostgreSQL)
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     # Auth / JWT
     JWT_SECRET_KEY: str = "CHANGE_ME_SUPER_SECRET_KEY"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 240
     
     # API Configuration
     API_HOST: str = "0.0.0.0"

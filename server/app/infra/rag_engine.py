@@ -112,8 +112,11 @@ def format_prompt_with_context(
             [
                 (
                     "system",
-                    "You are a helpful assistant. Answer the question based on the "
-                    "following context. If you don't know the answer, say so.",
+                    "You are a helpful assistant that answers questions based on the provided context. "
+                    "The context may include documents, questions, and answers from a Q&A system. "
+                    "Use all relevant information from the context to provide a comprehensive answer. "
+                    "If the context contains relevant information, use it to answer the question. "
+                    "Only say you don't know if the context truly doesn't contain relevant information.",
                 ),
                 ("human", "Context:\n{context}\n\nQuestion: {question}\n\nAnswer:"),
             ]
@@ -123,12 +126,14 @@ def format_prompt_with_context(
             [
                 (
                     "human",
-                    "You are a helpful assistant. Answer the question based on the "
-                    "following context. If you don't know the answer, say so.\n\n"
+                    "You are a helpful assistant. Answer the question based on the following context. "
+                    "The context may include documents, questions, and answers from a Q&A system. "
+                    "Use all relevant information from the context to provide a comprehensive answer.\n\n"
                     "Context:\n{context}\n\nQuestion: {question}\n\nAnswer:",
                 )
             ]
         )
+
 
     return prompt_template.format_messages(context=context_text, question=query)
 

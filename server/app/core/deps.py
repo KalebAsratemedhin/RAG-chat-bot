@@ -90,3 +90,11 @@ def get_user_service(db: Session = Depends(get_db)) -> UserService:
     """
     return UserService(db)
 
+def get_qa_indexing_service(
+    db: Session = Depends(get_db),
+    collection = Depends(get_vector_store_collection),
+    embedding_model = Depends(get_embedding_model),
+):
+    """Provide a QA indexing service per request."""
+    from app.services.qa_indexing_service import QAIndexingService
+    return QAIndexingService(db, collection, embedding_model)

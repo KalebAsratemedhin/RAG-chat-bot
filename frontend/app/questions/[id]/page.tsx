@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { CheckCircle2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -64,7 +64,12 @@ function QuestionDetailPage() {
               <span>{question.author_email}</span>
               <span>•</span>
               <span>
-                {formatDistanceToNow(new Date(question.created_at), { addSuffix: true })}
+              {formatDistanceToNow(
+                typeof question.created_at === 'string' 
+                    ? parseISO(question.created_at) 
+                    : new Date(question.created_at), 
+                { addSuffix: true }
+                )}
               </span>
             </div>
             <p className="text-base whitespace-pre-wrap mb-4">{question.content}</p>

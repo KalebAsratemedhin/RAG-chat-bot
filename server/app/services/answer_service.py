@@ -37,7 +37,7 @@ class AnswerService:
     def get_answers_by_question(self, question_id: int) -> List[Answer]:
         return self.db.query(Answer).filter(
             Answer.question_id == question_id
-        ).order_by(Answer.is_accepted.desc(), Answer.created_at.asc()).all()
+        ).join(Answer.author).order_by(Answer.is_accepted.desc(), Answer.created_at.asc()).all()
 
     def update_answer(
         self, 

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { MessageSquare, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { VoteButtons } from '@/components/questions/vote-buttons';
@@ -28,7 +28,12 @@ export function QuestionCard({ question }: QuestionCardProps) {
             </p>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span>
-                {formatDistanceToNow(new Date(question.created_at), { addSuffix: true })}
+                {formatDistanceToNow(
+                typeof question.created_at === 'string' 
+                    ? parseISO(question.created_at) 
+                    : new Date(question.created_at), 
+                { addSuffix: true }
+                )}
               </span>
               <div className="flex items-center gap-1">
                 <MessageSquare className="h-4 w-4" />

@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from urllib.parse import unquote
 
 from app.schemas.documents import (
     DocumentUploadResponse,
@@ -103,7 +104,9 @@ async def delete_indexed_document(
     Delete all indexed chunks for a given document source from the vector store.
     """
     try:
-        return service.remove_indexed_document(source)
+        # URL decode the source parameter in case it's encoded
+        decoded_source = unquote(source)
+        return service.remove_indexed_document(decoded_source)
     except Exception as exc:  # pragma: no cover
         raise HTTPException(
             status_code=500,
