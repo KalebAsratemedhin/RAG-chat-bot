@@ -1,107 +1,240 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useSendMessageMutation } from '@/lib/api';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { DocumentsPanel } from '@/components/documents/documents-panel';
-import { ChatHeader } from '@/components/chat/chat-header';
-import { ChatMessages } from '@/components/chat/chat-messages';
-import { ChatInput } from '@/components/chat/chat-input';
-import { AuthGuard } from '@/components/auth/auth-guard';
-import type { ChatMessage } from '@/components/chat/types';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { getFormattedAppName } from '@/lib/app-name';
 
-function ChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
-  const [sendMessage, { isLoading }] = useSendMessageMutation();
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input.trim(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    const currentInput = input;
-    setInput('');
-    
-    // Reset textarea height
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-    }
-
-    try {
-      const result = await sendMessage({ message: currentInput }).unwrap();
-      
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: result.response,
-        sources: result.sources,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: `Error: ${error instanceof Error ? error.message : 'Failed to get response. Make sure the backend is running on http://localhost:8000'}`,
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    }
-  };
+export default function LandingPage() {
+  const appName = getFormattedAppName();
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      <ChatHeader />
-
-      {/* Main content: chat + documents sidebar */}
-      <div className="flex-1 flex px-4 gap-4 py-2 min-h-0">
-        {/* Chat area */}
-        <ScrollArea className="flex-1 h-full">
-          <ChatMessages
-            messages={messages}
-            isLoading={isLoading}
-            messagesEndRef={messagesEndRef}
-          />
-        </ScrollArea>
-
-        {/* Documents panel */}
-        <ScrollArea>
-          <DocumentsPanel />
-        </ScrollArea>
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Hero Section */}
+      <main className="flex-1">
+        <div style={{ backgroundColor: 'oklch(0.97 0.005 0)' }}>
+          <section className="container mx-auto px-4 min-h-[80vh] flex items-center">
+          <div className="max-w-3xl mx-auto text-center w-full py-12">
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Your Community Knowledge Hub
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Connect, share, and discover knowledge with AI-powered search. Upload documents, ask questions, and build a smarter community together.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild>
+                <Link href="/signup">Get Started</Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+            </div>
+          </div>
+          </section>
         </div>
 
-      {/* Input */}
-      <ChatInput
-        input={input}
-        setInput={setInput}
-        isLoading={isLoading}
-        onSubmit={handleSubmit}
-        textareaRef={textareaRef}
-      />
-    </div>
-  );
-}
+        {/* Features Section */}
+        <div style={{ backgroundColor: 'oklch(0.98 0.012 240)' }}>
+          <section className="container mx-auto px-4 min-h-[80vh] flex items-center py-12">
+            <div className="max-w-5xl mx-auto">
+            <h3 className="text-3xl font-bold text-center mb-12">Powerful Features</h3>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <h4 className="text-xl font-semibold mb-2">Community Knowledge</h4>
+                <p className="text-muted-foreground">
+                  Gather and share knowledge with your community. Build a collective knowledge base that grows with every contribution.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    />
+                  </svg>
+                </div>
+                <h4 className="text-xl font-semibold mb-2">AI Assistant</h4>
+                <p className="text-muted-foreground">
+                  Get instant answers powered by RAG technology. Ask questions and discover information faster than ever.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <h4 className="text-xl font-semibold mb-2">Private Documents</h4>
+                <p className="text-muted-foreground">
+                  Upload and search through your private documents securely. RAG-based search finds exactly what you need.
+                </p>
+              </div>
+            </div>
+            </div>
+          </section>
+        </div>
 
-export default function ProtectedChatPage() {
-  return (
-    <AuthGuard>
-      <ChatPage />
-    </AuthGuard>
+        {/* How It Works Section */}
+        <div style={{ backgroundColor: 'oklch(0.97 0.005 0)' }}>
+          <section className="container mx-auto px-4 min-h-[80vh] flex items-center py-12">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-3xl font-bold text-center mb-12">How It Works</h3>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                  1
+                </div>
+                <h4 className="text-lg font-semibold mb-3">Sign Up</h4>
+                <p className="text-muted-foreground">
+                  Create your account in seconds. No credit card required to get started.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                  2
+                </div>
+                <h4 className="text-lg font-semibold mb-3">Upload Documents</h4>
+                <p className="text-muted-foreground">
+                  Add your documents to build your knowledge base. Support for various file formats.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                  3
+                </div>
+                <h4 className="text-lg font-semibold mb-3">Ask & Discover</h4>
+                <p className="text-muted-foreground">
+                  Ask questions and get instant answers. Share knowledge with your community.
+                </p>
+              </div>
+            </div>
+          </div>
+          </section>
+        </div>
+
+        {/* Benefits Section */}
+        <div style={{ backgroundColor: 'oklch(0.98 0.012 240)' }}>
+          <section className="container mx-auto px-4 min-h-[80vh] flex items-center py-12">
+            <div className="max-w-5xl mx-auto">
+            <h3 className="text-3xl font-bold text-center mb-12">Why Choose {appName}?</h3>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">Secure & Private</h4>
+                  <p className="text-muted-foreground">
+                    Your documents are encrypted and stored securely. You have full control over your data.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">Fast & Accurate</h4>
+                  <p className="text-muted-foreground">
+                    Powered by advanced RAG technology for quick and precise answers from your documents.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">Collaborative</h4>
+                  <p className="text-muted-foreground">
+                    Build knowledge together. Share insights and learn from your community members.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">Easy to Use</h4>
+                  <p className="text-muted-foreground">
+                    Intuitive interface designed for everyone. No technical expertise required.
+                  </p>
+                </div>
+              </div>
+            </div>
+            </div>
+          </section>
+        </div>
+
+        {/* CTA Section */}
+        <div style={{ backgroundColor: 'oklch(0.97 0.005 0)' }}>
+          <section className="container mx-auto px-4 min-h-[80vh] flex items-center py-12">
+          <div className="max-w-2xl mx-auto text-center">
+            <h3 className="text-3xl font-bold mb-4">Ready to Get Started?</h3>
+            <p className="text-lg text-muted-foreground mb-8">
+              Join {appName} today and start building your community knowledge base.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild>
+                <Link href="/signup">Create Your Account</Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+            </div>
+          </div>
+          </section>
+        </div>
+      </main>
+    </div>
   );
 }

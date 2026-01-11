@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store-provider";
+import { Footer } from "@/components/ui/footer";
+import { AppHeader } from "@/components/ui/app-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,9 +15,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const appName = process.env.NEXT_PUBLIC_APP_NAME || "CommunityWise";
+
 export const metadata: Metadata = {
-  title: "RAG Chat Bot",
-  description: "Chat with your documents using RAG",
+  title: appName,
+  description: "A community knowledge platform powered by RAG technology. Share, discover, and learn together.",
 };
 
 export default function RootLayout({
@@ -28,7 +32,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          <div className="flex flex-col min-h-screen">
+            <AppHeader />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </StoreProvider>
       </body>
     </html>
   );

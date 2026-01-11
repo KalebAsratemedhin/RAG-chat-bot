@@ -7,7 +7,6 @@ import { QuestionCard } from '@/components/questions/question-card';
 import { QuestionForm } from '@/components/questions/question-form';
 import { useGetQuestionsQuery } from '@/lib/api/questionsApi';
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { ChatHeader } from '@/components/chat/chat-header';
 
 function QuestionsPage() {
   const [showForm, setShowForm] = useState(false);
@@ -18,7 +17,6 @@ function QuestionsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <ChatHeader />
       <div className="container max-w-4xl mx-auto py-6 px-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Questions & Answers</h1>

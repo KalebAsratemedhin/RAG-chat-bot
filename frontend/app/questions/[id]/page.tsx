@@ -10,7 +10,6 @@ import { AnswerCard } from '@/components/questions/answer-card';
 import { AnswerForm } from '@/components/questions/answer-form';
 import { useGetQuestionQuery } from '@/lib/api/questionsApi';
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { ChatHeader } from '@/components/chat/chat-header';
 
 function QuestionDetailPage() {
   const params = useParams();
@@ -35,7 +34,6 @@ function QuestionDetailPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <ChatHeader />
       <div className="container max-w-4xl mx-auto py-6 px-4">
       <Link href="/questions">
         <Button variant="ghost" size="sm" className="mb-4">

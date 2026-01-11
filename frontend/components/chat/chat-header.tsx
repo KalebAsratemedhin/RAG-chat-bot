@@ -9,6 +9,7 @@ import { LogOut, MessageSquare, HelpCircle } from 'lucide-react';
 export function ChatHeader() {
   const router = useRouter();
   const pathname = usePathname();
+  const appName = (process.env.NEXT_PUBLIC_APP_NAME || 'CommunityWise').replace(/([a-z])([A-Z])/g, '$1 $2');
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -19,11 +20,11 @@ export function ChatHeader() {
     <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center px-4 justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-lg font-semibold">RAG Chat Bot</h1>
+          <h1 className="text-lg font-semibold">{appName}</h1>
           <nav className="flex items-center gap-2">
-            <Link href="/">
+            <Link href="/chat">
               <Button
-                variant={pathname === '/' ? 'default' : 'ghost'}
+                variant={pathname === '/chat' ? 'default' : 'ghost'}
                 size="sm"
               >
                 <MessageSquare className="h-4 w-4 mr-2" />

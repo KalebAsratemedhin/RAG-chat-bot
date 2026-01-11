@@ -17,7 +17,7 @@ export default function LoginPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.push('/');
+      router.push('/chat');
     }
   }, [user, router]);
 
@@ -26,7 +26,7 @@ export default function LoginPage() {
     try {
       const result = await login({ email, password }).unwrap();
       localStorage.setItem('access_token', result.access_token);
-      router.push('/');
+      router.push('/chat');
     } catch (err) {
       console.error('Login failed', err);
     }
@@ -37,57 +37,69 @@ export default function LoginPage() {
     return null;
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md border rounded-xl p-6 shadow-sm bg-card">
-        <h1 className="text-xl font-semibold mb-4 text-center">Sign in</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-sm font-medium" htmlFor="email">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium" htmlFor="password">
-              Password
-            </label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          {error && (
-            <p className="text-xs text-destructive">
-              Failed to sign in. Check your credentials and try again.
-            </p>
-          )}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Signing in...' : 'Sign in'}
-          </Button>
-        </form>
+  const appName = (process.env.NEXT_PUBLIC_APP_NAME || 'CommunityWise').replace(/([a-z])([A-Z])/g, '$1 $2');
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Don&apos;t have an account?{' '}
-          <button
-            type="button"
-            className="text-primary hover:underline"
-            onClick={() => router.push('/signup')}
-          >
-            Sign up
-          </button>
-        </p>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2">{appName}</h1>
+          <p className="text-muted-foreground">Sign in to your account</p>
+        </div>
+        <div className="border rounded-xl p-8 shadow-sm bg-card">
+          <h2 className="text-2xl font-semibold mb-6 text-center">Sign in</h2>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="email">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="password">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-11"
+              />
+            </div>
+            {error && (
+              <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
+                <p className="text-sm text-destructive">
+                  Failed to sign in. Check your credentials and try again.
+                </p>
+              </div>
+            )}
+            <Button type="submit" className="w-full h-11" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{' '}
+            <button
+              type="button"
+              className="text-primary hover:underline font-medium"
+              onClick={() => router.push('/signup')}
+            >
+              Sign up
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
