@@ -1,4 +1,4 @@
-# Community Wise (formerly RAG Chat Bot)
+# Community Wise
 
 A full-featured community knowledge platform built with RAG (Retrieval-Augmented Generation) technology. Community Wise combines AI-powered document search with community Q&A features to help teams and communities build, share, and discover knowledge together.
 
